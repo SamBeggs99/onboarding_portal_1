@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAC Group Onboarding Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font and general body */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        /* Hide scrollbar for a cleaner look, but allow scrolling */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent; /* make scrollbar transparent */
+        }
+        /* Custom styles for the dark header with map background */
+        .header-bg {
+            background-image: url('https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/Wallpaper%201080x1920%20OPT%202_Red.png'); /* PAC Wallpaper World Map */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative; /* Needed for overlay */
+            overflow: hidden; /* Ensures overlay doesn't spill */
+        }
+        .header-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%); /* Dark overlay */
+            z-index: 0;
+        }
+        .header-content {
+            position: relative;
+            z-index: 1; /* Ensure content is above overlay */
+        }
+        /* Custom style for the red section background */
+        .red-bg {
+            background-color: #a02020; /* Deep red color from the image */
+        }
+        /* Style for the image tiles in "Key Documents and Guides" */
+        .image-tile {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem; /* rounded-xl for softer corners */
+            box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.15), 0 2px 6px -1px rgba(0, 0, 0, 0.08); /* slightly stronger shadow */
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .image-tile:hover {
+            transform: translateY(-8px); /* More pronounced lift */
+            box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2), 0 4px 8px -2px rgba(0, 0, 0, 0.1);
+        }
+        .image-tile-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); /* Stronger gradient */
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+        .image-tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        /* Style for chevron rotation */
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        .transition-transform {
+            transition: transform 0.3s ease-in-out;
+        }
+        /* Style for collapsible section buttons */
+        .collapsible-button {
+            padding: 1.25rem 0; /* More vertical padding for click target */
+            border-bottom: 1px solid #e5e7eb; /* Light gray border */
+            margin-bottom: 0.75rem; /* More space after button */
+        }
+        .collapsible-button:hover {
+            background-color: #f9fafb; /* Lighter hover background */
+        }
+        .collapsible-button h2 {
+            font-size: 2rem; /* text-3xl for section titles */
+            font-weight: 700; /* Extra bold for emphasis */
+            color: #1f2937; /* Darker gray for main headings */
+        }
+        .collapsible-button svg {
+            margin-right: 1rem; /* More space for chevron */
+            color: #4b5563; /* Slightly darker chevron */
+        }
+        /* Specific style for red section collapsible button */
+        .red-bg .collapsible-button {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Lighter border for dark background */
+        }
+        .red-bg .collapsible-button:hover {
+            background-color: rgba(0, 0, 0, 0.15); /* Subtle dark hover */
+        }
+        .red-bg .collapsible-button h2 {
+            color: white; /* Ensure text is white on red background */
+        }
+        .red-bg .collapsible-button svg {
+            color: white; /* Ensure chevron is white on red background */
+        }
+        /* Styling for content within collapsible sections */
+        .collapsible-content-inner {
+            padding-top: 1rem; /* Padding above content */
+            padding-bottom: 1rem; /* Padding below content */
+        }
+        .collapsible-content-inner p {
+            line-height: 1.75; /* Improved line spacing for readability */
+            margin-bottom: 0.75rem; /* Space between paragraphs */
+        }
+        .collapsible-content-inner strong {
+            font-weight: 700; /* Ensure bold text is clearly bold */
+            color: #374151; /* Slightly darker bold text */
+        }
+        .red-bg .collapsible-content-inner strong {
+            color: #f3f4f6; /* Lighter bold text on red background */
+        }
+        .collapsible-content-inner a {
+            font-weight: 500; /* Medium weight for links */
+            text-decoration: underline; /* Always underline links for clarity */
+            text-underline-offset: 2px; /* Slight offset for underline */
+        }
+        .text-blue-600:hover {
+            color: #2563eb; /* Darker blue on hover */
+        }
+        .text-blue-300:hover {
+            color: #93c5fd; /* Lighter blue on hover for red background */
+        }
+        /* Specific styling for the "Key Contacts" image */
+        .key-contacts-img {
+            max-width: 180px; /* Slightly larger image */
+            height: auto;
+            margin: 1rem auto; /* Center and add vertical margin */
+        }
+        /* Styling for the embedded survey iframe */
+        .survey-container {
+            width: 100%;
+            height: 600px; /* Adjust height as needed */
+            overflow: hidden; /* Hide scrollbars if content is larger than iframe */
+            border-radius: 0.75rem; /* Match other rounded elements */
+            box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+            background-color: #ffffff; /* Ensure background for iframe */
+        }
+        .survey-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none; /* Remove default iframe border */
+        }
+        /* Main content area responsiveness */
+        .main-content-area {
+            padding: 2rem; /* Default padding for smaller screens */
+            margin: 2rem auto; /* Center with margin for smaller screens */
+            max-width: 100%; /* Default to full width */
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .main-content-area {
+                padding: 3rem; /* Larger padding for medium screens */
+            }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .main-content-area {
+                padding: 4rem; /* Even larger padding for large screens */
+                max-width: 1200px; /* Max width for larger screens */
+            }
+        }
+
+        /* Styles for the checklist items */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem; /* Space between checklist items */
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-right: 0.75rem; /* Space between checkbox and text */
+            min-width: 1.25rem; /* Ensure checkbox is not too small */
+            min-height: 1.25rem;
+            accent-color: #f87171; /* Tailwind red-400 for checkbox color */
+            cursor: pointer;
+        }
+        .checklist-item label {
+            flex-grow: 1;
+            cursor: pointer;
+            line-height: 1.5; /* Align text with checkbox */
+        }
+        .checklist-item.completed label {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Dark Header Section with Map Background -->
+    <header class="header-bg text-white py-12 px-8 md:px-16 lg:px-24 flex flex-col md:flex-row items-start md:items-center justify-between">
+        <div class="flex flex-col items-start mb-8 md:mb-0 header-content">
+            <!-- PAC Logo -->
+            <div class="flex items-center mb-4">
+                <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/PAC%20Group.png" alt="PAC Group Logo" class="w-10 h-10 mr-2" style="filter: invert(100%) brightness(200%);"> <!-- Inverted for white logo on dark background -->
+                <div class="ml-2">
+                    <span class="text-4xl font-bold">PAC</span>
+                    <p class="text-sm uppercase tracking-widest">The PAC Group</p>
+                </div>
+            </div>
+            <!-- Welcome Message -->
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Welcome to the <span class="text-red-500">PAC</span> Group Onboarding Portal!</h1>
+            <p class="text-lg max-w-2xl leading-relaxed">We are very excited to have you joining us! Here, you will find various resources that will assist you with your onboarding experience!</p>
+        </div>
+    </header>
+
+    <!-- Quick Start Checklist Section (Red Background) -->
+    <section class="red-bg text-white py-10 px-8 md:px-16 lg:px-24 rounded-b-lg shadow-lg">
+        <h2 class="text-3xl font-bold mb-8 text-center">Quick Start Checklist</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-6 max-w-5xl mx-auto">
+            <!-- Checklist Column 1 -->
+            <div class="space-y-3 text-lg leading-relaxed">
+                <div class="checklist-item">
+                    <input type="checkbox" id="checklist-item-1">
+                    <label for="checklist-item-1">Get Your Computer & Phone Set Up</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="checklist-item-2">
+                    <label for="checklist-item-2">Access Your Email</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="checklist-item-3">
+                    <label for="checklist-item-3">Log into Key Systems (Bamboo, Outlook, Microsoft, etc.)</label>
+                </div>
+            </div>
+            <!-- Checklist Column 2 -->
+            <div class="space-y-3 text-lg leading-relaxed">
+                <div class="checklist-item">
+                    <input type="checkbox" id="checklist-item-4">
+                    <label for="checklist-item-4">Review Company Handbook & Policies</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="checklist-item-5">
+                    <label for="checklist-item-5">Join your First Teams Meeting!</label>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Sections (White Background) -->
+    <main class="flex-grow bg-white rounded-lg shadow-xl mt-8 main-content-area">
+
+        <!-- Getting Started Section -->
+        <section class="mb-12 border-b border-gray-200 pb-6">
+            <button class="w-full text-left focus:outline-none flex items-center justify-between collapsible-button" onclick="toggleSection('getting-started-content', 'getting-started-chevron')">
+                <h2 class="flex items-center">
+                    <svg id="getting-started-chevron" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up mr-3 transition-transform rotate-180"><path d="m18 15-6-6-6 6"/></svg>
+                    Getting Started
+                </h2>
+            </button>
+            <div id="getting-started-content" class="mt-4 hidden collapsible-content-inner">
+                <div class="text-gray-700 space-y-4 text-lg">
+                    <p><strong>Stage 1: Dive into BambooHR!</strong> Your journey begins by logging into <a href="https://pacgroup.bamboohr.com/" target="_blank" class="text-blue-600 hover:underline">BambooHR</a> with your personal email. This is where you'll create your account and get set up!</p>
+                    <p><strong>Stage 2: Onboarding Tasks Await!</strong> Complete all the exciting onboarding tasks assigned to you within BambooHR. We've made it simple and straightforward.</p>
+                    <p><strong>Stage 3: Your PAC Credentials Are Here!</strong> Keep an eye on your inbox for an email from "<a href="mailto:support@2sic.com" class="text-blue-600 hover:underline">support@2sic.com</a>". This email will contain your new PAC credentials. On your first login, you'll be prompted to set a new password and configure Multi-Factor Authentication (MFA) – it's super important for security!</p>
+                    <p class="ml-4"><strong>Pro Tip:</strong> Make sure to download the Microsoft Authenticator app from your Apple App Store or Google Play store beforehand to make MFA setup a breeze!</p>
+                    <p><strong>Stage 4: Device Setup Made Easy!</strong> Get your devices ready. Remember to connect your laptop to Wi-Fi *before* attempting to sign in for the first time. We're here to help if you hit any snags!</p>
+                    <p><strong>Stage 5: Unlock Key Resources!</strong> Once your devices are set up, you'll gain access to all the essential tools and resources you need to thrive at PAC. Welcome aboard!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Tools & Accounts (Microsoft) Section -->
+        <section class="mb-12 red-bg text-white p-8 rounded-lg shadow-lg">
+            <button class="w-full text-left focus:outline-none flex items-center justify-between collapsible-button" onclick="toggleSection('microsoft-tools-content', 'microsoft-tools-chevron')">
+                <h2 class="flex items-center">
+                    <svg id="microsoft-tools-chevron" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up mr-3 transition-transform rotate-180"><path d="m18 15-6-6-6 6"/></svg>
+                    Your Microsoft Toolkit: Essential Apps for Success
+                </h2>
+            </button>
+            <div id="microsoft-tools-content" class="mt-4 hidden collapsible-content-inner">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-lg">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Microsoft Teams: Your Collaboration Hub!</h3>
+                        <p class="mb-4">Get ready to connect and collaborate seamlessly! Microsoft Teams is your go-to for team communication, meetings, and shared workspaces. Download the desktop app right here: <a href="https://www.microsoft.com/en-us/microsoft-teams/download-app" target="_blank" class="text-blue-300 hover:underline">Download Microsoft Teams for Desktop</a>.</p>
+
+                        <h3 class="text-xl font-semibold mb-2">Microsoft Office Suite: Productivity at Your Fingertips!</h3>
+                        <p class="mb-4">Good news! Microsoft Office (Word, Excel, PowerPoint, etc.) comes pre-installed on all PAC computers in North America, so you're ready to roll from day one.</p>
+                        <p>Need to install it manually on another device? No problem! Head over to <a href="https://portal.office.com/account" target="_blank" class="text-blue-300 hover:underline">Your Account</a>, click "Install Office," and follow the simple wizard prompts.</p>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/8dce19b9-f746-4199-9821-ce4dec251547.png" alt="Microsoft Apps" class="w-full h-auto object-contain rounded-lg shadow-md">
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">SharePoint: Your Central Knowledge Base!</h3>
+                        <p class="mb-4">SharePoint is the heart of communication and information sharing at PAC! It's where you'll find company news, project documents, and essential resources. Access our <a href="https://pacgroup.sharepoint.com/sites/PACGlobal" target="_blank" class="text-blue-300 hover:underline">Global SharePoint</a> here.</p>
+                        <p class="mb-4">Just a heads-up: You'll need your active PAC Microsoft Account to dive into any sites beyond this portal!</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Beyond the Basics: Other Microsoft Tools!</h3>
+                        <p>If your role requires specialized tools like Microsoft Visio or Microsoft Project, and you're licensed for them, you can easily find their downloads under "Apps and Devices" on your <a href="https://portal.office.com/account" target="_blank" class="text-blue-300 hover:underline">Your Account</a> page. We've got you covered!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Tools & Accounts (Non-Microsoft) Section -->
+        <section class="mb-12 border-b border-gray-200 pb-6">
+            <button class="w-full text-left focus:outline-none flex items-center justify-between collapsible-button" onclick="toggleSection('non-microsoft-tools-content', 'non-microsoft-tools-chevron')">
+                <h2 class="flex items-center">
+                    <svg id="non-microsoft-tools-chevron" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up mr-3 text-gray-600 transition-transform rotate-180"><path d="m18 15-6-6-6 6"/></svg>
+                    Essential Non-Microsoft Tools: Expanding Your Toolkit
+                </h2>
+            </button>
+            <div id="non-microsoft-tools-content" class="mt-4 hidden collapsible-content-inner">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-lg">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Zoom: For External Connections!</h3>
+                        <p class="mb-4">While Teams is our internal hub, some projects might require Zoom for external meetings. If your role needs Zoom Workplace, please chat with your manager to arrange a specialized license and account from PAC. Get ahead by downloading Zoom here: <a href="https://zoom.us/download" target="_blank" class="text-blue-600 hover:underline">Zoom Download</a>.</p>
+                    </div>
+                    <div class="flex items-center justify-center space-x-4">
+                        <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/Zoom.png" alt="Zoom Logo" class="w-24 h-24 object-contain rounded-lg shadow-md">
+                        <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/Bamboohr.png" alt="BambooHR Logo" class="w-24 h-24 object-contain rounded-lg shadow-md">
+                        <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/adobe.jpg" alt="Adobe Logo" class="w-24 h-24 object-contain rounded-lg shadow-md">
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Barracuda E-Mail Filter: Your Inbox Guardian!</h3>
+                        <p>At PAC, we take your security seriously! Barracuda helps protect your inbox from phishing and other threats. You might receive automated messages from <a href="mailto:pacit@pacgroup.com" class="text-blue-600 hover:underline">pacit@pacgroup.com</a> about potential risks. Don't worry, just use the automated buttons within those emails to respond safely!</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Adobe: For Your PDF Needs!</h3>
+                        <p class="mb-4">If your role involves working with PDFs, you might need Adobe. Please consult your manager to request an Adobe license for your account. Once approved, you'll receive an email directly from Adobe with instructions to create your account and download the software.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Slack: Connecting with Amazon Projects!</h3>
+                        <p class="mb-4">For many of our Amazon-related projects, Slack is the primary messaging platform. Access to Amazon-hosted Slack is granted directly by Amazon, while PAC-hosted Slack is managed by your IT Department.</p>
+                        <p>Ready to get started? Download the Slack client here: <a href="https://slack.com/downloads/windows" target="_blank" class="text-blue-600 hover:underline">Slack Downloads</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Documents and Guides Section -->
+        <section class="mb-12 red-bg text-white p-8 rounded-lg shadow-lg">
+            <button class="w-full text-left focus:outline-none flex items-center justify-between collapsible-button" onclick="toggleSection('documents-guides-content', 'documents-guides-chevron')">
+                <h2 class="flex items-center">
+                    <svg id="documents-guides-chevron" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up mr-3 transition-transform rotate-180"><path d="m18 15-6-6-6 6"/></svg>
+                    Key Documents and Guides
+                </h2>
+            </button>
+            <div id="documents-guides-content" class="mt-4 hidden collapsible-content-inner">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Outlook Tile (Exchange Online Support.pdf) -->
+                    <div class="image-tile">
+                        <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/Outlook.png" alt="Outlook Icon">
+                        <div class="image-tile-overlay">
+                            <p class="font-bold text-lg">Outlook Email Setup</p>
+                            <p class="text-sm">Configuring Exchange Online Email and Outlook for various devices.</p>
+                            <a href="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/Exchange%20Online%20Support.pdf" target="_blank" class="text-blue-300 hover:underline flex items-center mt-2">
+                                Learn more
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Microsoft Applications Tile (Download MS365 Applications.pdf) -->
+                    <div class="image-tile">
+                        <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/Office%20Logo.png" alt="Office Icon">
+                        <div class="image-tile-overlay">
+                            <p class="font-bold text-lg">Microsoft 365 Applications</p>
+                            <p class="text-sm">Guide to downloading and installing Microsoft 365 applications.</p>
+                            <a href="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/Download%20MS365%20Applications.pdf" target="_blank" class="text-blue-300 hover:underline flex items-center mt-2">
+                                Learn more
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- PAC iPhone Configuration Tile (PAC IT Phone Configuration.pdf) -->
+                    <div class="image-tile">
+                        <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/apple.jpg" alt="Apple Icon">
+                        <div class="image-tile-overlay">
+                            <p class="font-bold text-lg">PAC iPhone Configuration</p>
+                            <p class="text-sm">Instructions for setting up PAC E-Mail on your iPhone.</p>
+                            <a href="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/PAC%20IT%20Phone%20Configuration.pdf" target="_blank" class="text-blue-300 hover:underline flex items-center mt-2">
+                                Learn more
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- ICT Ticketing Guidebook Tile (PAC ICT Ticketing System Guidebook.pdf) -->
+                    <div class="image-tile">
+                        <!-- Using a generic placeholder as no specific image for ICT Ticketing was provided -->
+                        <img src="https://placehold.co/300x200/0078D4/ffffff?text=ICT" alt="ICT Icon">
+                        <div class="image-tile-overlay">
+                            <p class="font-bold text-lg">ICT Ticketing Guidebook</p>
+                            <p class="text-sm">How to use the ICT Ticketing System for various IT services.</p>
+                            <a href="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/PAC%20ICT%20Ticketing%20System%20Guidebook.pdf" target="_blank" class="text-blue-300 hover:underline flex items-center mt-2">
+                                Learn more
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- PAC Computer Set-Up Tile (Placeholder) -->
+                    <div class="image-tile">
+                        <!-- Using a generic placeholder as no specific image for Computer Set-Up was provided -->
+                        <img src="https://placehold.co/300x200/666666/ffffff?text=Computer" alt="Computer Icon">
+                        <div class="image-tile-overlay">
+                            <p class="font-bold text-lg">PAC Computer Set-Up</p>
+                            <p class="text-sm">Guidelines for setting up your new PAC computer.</p>
+                            <a href="#" class="text-blue-300 hover:underline flex items-center mt-2">
+                                Learn more
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Links Section -->
+        <section class="mb-12 border-b border-gray-200 pb-6">
+            <button class="w-full text-left focus:outline-none flex items-center justify-between collapsible-button" onclick="toggleSection('quick-links-content', 'quick-links-chevron')">
+                <h2 class="flex items-center">
+                    <svg id="quick-links-chevron" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up mr-3 text-gray-600 transition-transform rotate-180"><path d="m18 15-6-6-6 6"/></svg>
+                    Quick Links
+                </h2>
+            </button>
+            <div id="quick-links-content" class="mt-4 hidden collapsible-content-inner">
+                <ul class="list-none space-y-2 text-gray-700 text-lg">
+                    <li>PAC Global SharePoint: <a href="https://pacgroup.sharepoint.com/sites/PACGlobal" target="_blank" class="text-blue-600 hover:underline">https://pacgroup.sharepoint.com/sites/PACGlobal</a></li>
+                    <li>BambooHR: <a href="https://pacgroup.bamboohr.com/" target="_blank" class="text-blue-600 hover:underline">https://pacgroup.bamboohr.com/</a></li>
+                    <li>ICT Ticketing Portal: <a href="https://ict.faa-pacgroup.com/" target="_blank" class="text-blue-600 hover:underline">https://ict.faa-pacgroup.com/</a></li>
+                    <li>SAP Concur: <a href="https://www.concursolutions.com/nui/signin?targetURL=%2Fhome" target="_blank" class="text-blue-600 hover:underline">SAP Concur</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Key Contacts Section -->
+        <section class="mb-12 border-b border-gray-200 pb-6">
+            <button class="w-full text-left focus:outline-none flex items-center justify-between collapsible-button" onclick="toggleSection('key-contacts-content', 'key-contacts-chevron')">
+                <h2 class="flex items-center">
+                    <svg id="key-contacts-chevron" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up mr-3 text-gray-600 transition-transform rotate-180"><path d="m18 15-6-6-6 6"/></svg>
+                    Key Contacts
+                </h2>
+            </button>
+            <div id="key-contacts-content" class="mt-4 hidden collapsible-content-inner">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-lg">
+                    <div class="text-gray-700">
+                        <p class="font-semibold mb-2">For General Onboarding questions, please contact:</p>
+                        <p><a href="mailto:onboarding@pacgroup.com" class="text-blue-600 hover:underline">onboarding@pacgroup.com</a></p>
+                    </div>
+                    <div class="flex justify-center">
+                        <img src="https://pacgroup.sharepoint.com/sites/PACOnboardingPortal/Shared%20Documents/Portal%20Docs/PAC%20Group.png" alt="PAC Group Logo" class="key-contacts-img object-contain rounded-lg shadow-md">
+                    </div>
+                    <div class="text-gray-700">
+                        <p class="font-semibold mb-2">For Technical Support questions or issues, please contact:</p>
+                        <p><a href="mailto:pacit@pacgroup.com" class="text-blue-600 hover:underline">pacit@pacgroup.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Section: Your Onboarding Feedback (for MS Forms Embed) -->
+        <section class="mb-12">
+            <button class="w-full text-left focus:outline-none flex items-center justify-between collapsible-button" onclick="toggleSection('onboarding-feedback-content', 'onboarding-feedback-chevron')">
+                <h2 class="flex items-center">
+                    <svg id="onboarding-feedback-chevron" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up mr-3 text-gray-600 transition-transform rotate-180"><path d="m18 15-6-6-6 6"/></svg>
+                    Your Onboarding Feedback
+                </h2>
+            </button>
+            <div id="onboarding-feedback-content" class="mt-4 hidden collapsible-content-inner">
+                <p class="text-gray-700 text-lg mb-4 leading-relaxed">We value your experience! Please take a few moments to share your thoughts on your onboarding journey by completing this short survey. Your feedback helps us make the process even better for future PAC team members.</p>
+                <div class="survey-container">
+                    <!-- The actual iframe for the Microsoft Form -->
+                    <iframe width="100%" height="100%" src="https://forms.office.com/Pages/ResponsePage.aspx?id=Wf8fo98HpUObqf8pntisdLEjRMpzv-dPgd7jeBkNQ2NUMUg5RDY5SjA0TFFTSkUwQ1lTWUlXVkFYQi4u&embed=true" frameborder="0" marginwidth="0" marginheight="0" style="border: none; max-width:100%; max-height:100vh" allowfullscreen webkitallowfullscreen mozallowfullscreen msallowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white py-8 px-8 md:px-16 lg:px-24 mt-12">
+        <div class="max-w-7xl mx-auto text-center text-sm">
+            <p>&copy; 2025 The PAC Group. All rights reserved.</p>
+            <p class="mt-2">Integrated Globally. Implemented Locally.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Function to toggle the visibility of a section and rotate its chevron icon
+        function toggleSection(contentId, chevronId) {
+            const content = document.getElementById(contentId);
+            const chevron = document.getElementById(chevronId);
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.classList.remove('rotate-180'); // Rotate down
+            } else {
+                content.classList.add('hidden');
+                chevron.classList.add('rotate-180'); // Rotate up
+            }
+        }
+
+        // Function to save checkbox state to localStorage
+        function saveChecklistState(id, isChecked) {
+            localStorage.setItem('checklist_' + id, isChecked);
+        }
+
+        // Function to load checkbox state from localStorage
+        function loadChecklistState(id) {
+            return localStorage.getItem('checklist_' + id) === 'true';
+        }
+
+        // Initialize all sections to be collapsed by default, except the first two.
+        // This script runs after the DOM is loaded, so elements are available.
+        document.addEventListener('DOMContentLoaded', () => {
+            const sectionsToCollapse = [
+                'getting-started-content',
+                'microsoft-tools-content',
+                'non-microsoft-tools-content',
+                'documents-guides-content',
+                'quick-links-content',
+                'key-contacts-content',
+                'onboarding-feedback-content'
+            ];
+
+            sectionsToCollapse.forEach(id => {
+                const content = document.getElementById(id);
+                const chevronId = id.replace('-content', '-chevron');
+                const chevron = document.getElementById(chevronId);
+
+                if (content && chevron) {
+                    content.classList.add('hidden');
+                    chevron.classList.add('rotate-180'); // Ensure chevron points up (collapsed)
+                }
+            });
+
+            // Handle checklist state
+            const checklistItems = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+            checklistItems.forEach(checkbox => {
+                const itemId = checkbox.id;
+                // Load state
+                checkbox.checked = loadChecklistState(itemId);
+                if (checkbox.checked) {
+                    checkbox.parentElement.classList.add('completed');
+                }
+
+                // Save state on change
+                checkbox.addEventListener('change', (event) => {
+                    saveChecklistState(itemId, event.target.checked);
+                    if (event.target.checked) {
+                        event.target.parentElement.classList.add('completed');
+                    } else {
+                        event.target.parentElement.classList.remove('completed');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
